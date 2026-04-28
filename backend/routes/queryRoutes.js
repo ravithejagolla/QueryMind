@@ -63,7 +63,7 @@ router.post('/query', async (req, res) => {
 
   } catch (error) {
     console.error('Query error:', error.message);
-    
+
     // Handle database errors
     if (error.code) {
       return res.status(200).json({
@@ -108,7 +108,7 @@ router.get('/schema', async (req, res) => {
     `;
 
     const result = await pool.query(tablesQuery);
-    
+
     // Group by table
     const schema = {};
     result.rows.forEach(row => {
@@ -149,6 +149,7 @@ router.get('/health', async (req, res) => {
     await pool.query('SELECT 1');
     res.json({ status: 'ok', database: 'connected', timestamp: new Date().toISOString() });
   } catch (error) {
+    console.log("Error In DB", error)
     res.status(500).json({ status: 'error', database: 'disconnected', error: error.message });
   }
 });
@@ -230,9 +231,9 @@ router.delete('/data/delete/:table/:id', async (req, res) => {
 // PUT /api/data/update/:table/:id - Update a row by primary key
 router.put('/data/update/:table/:id', async (req, res) => {
   const ALLOWED_TABLES = {
-    customers:   'customer_id',
-    products:    'product_id',
-    orders:      'order_id',
+    customers: 'customer_id',
+    products: 'product_id',
+    orders: 'order_id',
     order_items: 'item_id',
   };
   const { table, id } = req.params;
