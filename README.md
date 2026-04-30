@@ -1,15 +1,14 @@
 # QueryMind - Natural Language to SQL Generator
 
 ## Introduction
-QueryMind is an intelligent tool that translates natural language questions into accurate SQL queries. It enables users to interact with their databases seamlessly without writing complex SQL code. The platform features an AI-powered backend, secure database connections, and a dynamic frontend that visualizes query results through interactive tables and charts.
+QueryMind is an intelligent tool that allows users to seamlessly convert natural language questions into executable SQL queries. By leveraging the power of Google's Gemini AI, the application translates plain English into optimized SQL, executes the queries against a connected PostgreSQL database, and visualizes the results. It also supports manual data entry and schema exploration.
 
 ## Project Type
-- Backend: Node.js, Express, PostgreSQL
+- Backend: Node.js, Express
 - Frontend: React, Vite
 
 ## Deployed App
-- **Frontend**: https://querymind-nltosql.netlify.app/ (Deployed on Netlify)
-- **Backend**: (Deployed on Render / Add your link here)
+- **Frontend**: https://querymind-nltosql.netlify.app
 
 ## Directory Structure
 ```
@@ -22,152 +21,94 @@ QueryMind/
 │   ├── services/
 │   │   ├── geminiService.js
 │   ├── .env
-│   ├── .gitignore
-│   ├── package-lock.json
 │   ├── package.json
 │   ├── server.js
 ├── frontend/
 │   ├── public/
-│   │   ├── vite.svg
 │   ├── src/
-│   │   ├── assets/
-│   │   ├── components/
-│   │   │   ├── ChartPanel.jsx
-│   │   │   ├── ChartView.jsx
-│   │   │   ├── DataManager.jsx
-│   │   │   ├── Header.jsx
-│   │   │   ├── QueryHistory.jsx
-│   │   │   ├── QueryInput.jsx
-│   │   │   ├── ResultsTable.jsx
-│   │   │   ├── SQLResult.jsx
-│   │   │   ├── Sidebar.jsx
-│   │   │   ├── ThemeToggle.jsx
-│   │   ├── services/
-│   │   │   ├── api.js
-│   │   ├── App.css
-│   │   ├── App.jsx
-│   │   ├── index.css
-│   │   ├── main.jsx
-│   ├── .env
-│   ├── .gitignore
-│   ├── eslint.config.js
 │   ├── index.html
-│   ├── package-lock.json
 │   ├── package.json
 │   ├── vite.config.js
 ```
 
-## Video Walkthrough of the Project
-
-
-## Video Walkthrough of the Codebase
-
-
 ## Features
-- Natural Language to SQL generation using Google Gemini AI
-- Direct execution of generated queries against a PostgreSQL database
-- Interactive data visualization with charts and graphs (Recharts)
-- Data management and schema viewing capabilities
-- Query history tracking to revisit past questions
-- Dark/Light theme toggle for better user experience
-- SQL syntax highlighting for readable code output
-- Responsive and modern UI with sidebar navigation
+- **Natural Language to SQL**: Converts plain English queries into valid PostgreSQL commands using Gemini AI.
+- **Query Execution & Safety**: Automatically executes SELECT queries safely and returns results directly in the UI.
+- **Data Visualization**: Presents the query results using structured tables and Recharts for analytical insights.
+- **Schema Explorer**: Interactive view of the current database schema, including tables and column definitions.
+- **Data Management**: CRUD capabilities to easily insert, update, or delete records in the database via the UI.
+- **Query Suggestions**: Provides helpful query examples based on the existing schema.
 
 ## Design Decisions & Assumptions
-- **PostgreSQL Database**: Chosen for its robust relational data handling and querying capabilities.
-- **Google Gemini AI**: Utilized for its advanced natural language processing to generate accurate and optimized SQL queries.
-- **RESTful API Structure**: Followed RESTful principles for clean communication between the frontend and backend.
-- **Vite & React**: Chosen for fast development, optimal build times, and modular component architecture.
-- **Recharts**: Integrated for rendering highly customizable and responsive charts based on query results.
-- **Security**: CORS is configured to securely allow requests only from specific deployed origins or local development environments.
+- **PostgreSQL Database**: Selected for robust relational data handling.
+- **Gemini AI**: Utilized for highly accurate translation of complex natural language into SQL.
+- **Safety First**: The backend only permits `SELECT` and `WITH` statements from the AI to prevent unauthorized data mutations.
+- **Separation of Concerns**: Clean REST API architecture with modularized routing and services.
 
 ## Installation & Getting Started
 Follow these steps to set up the project locally:
 
 ```bash
 # Clone the repository
-git clone <your-repository-url>
+git clone https://github.com/your-username/QueryMind.git
 
-# Navigate to the backend directory
+# Setup Backend
 cd QueryMind/backend
-
-# Install backend dependencies
 npm install
+# Create a .env file and add your GEMINI_API_KEY and DATABASE_URL
+npm run dev
 
-# Set up environment variables
-# Create a .env file in the backend folder and add:
-# PORT=5000
-# DATABASE_URL=<your-postgresql-url>
-# GEMINI_API_KEY=<your-google-gemini-api-key>
-
-# Start the backend server
-npm start
-
-# In a new terminal, navigate to the frontend directory
-cd QueryMind/frontend
-
-# Install frontend dependencies
+# Setup Frontend
+cd ../frontend
 npm install
-
-# Start the frontend development server
 npm run dev
 ```
 
 ## Usage
 ### Running the Backend Server
 ```bash
-npm start
-# or for development
-npm run dev
-```
-### Running the Frontend
-```bash
+cd backend
 npm run dev
 ```
 
-### Example API Usage
+### Running the Frontend Server
 ```bash
-# Get database schema
-GET /api/schema
-
-# Generate and execute SQL from natural language
-POST /api/query
-{
-  "prompt": "Show me the total sales for last month"
-}
+cd frontend
+npm run dev
 ```
 
 ## Credentials
-*(Optional)* Add any test credentials if your platform uses authentication, otherwise leave this section out.
+*This project requires an active PostgreSQL database and a Google Gemini API Key. Set them in your `.env` file.*
 
 ## APIs Used
-- **Google Gemini API** (Natural Language Processing to SQL)
-- **PostgreSQL Database** (Data Storage & Query Execution)
+- **Google Gemini API** (For natural language to SQL translation)
+- **PostgreSQL Database** (Via `pg` library)
 
 ## API Endpoints
-### Query and Data
+### Query and Schema
 - **POST** `/api/query` - Convert natural language to SQL and execute
 - **GET** `/api/schema` - Get database schema information
 - **GET** `/api/suggestions` - Get sample query suggestions
-- **GET** `/api/health` - Health check endpoint
+- **GET** `/api/health` - Health check
+
+### Data Management
+- **POST** `/api/data/insert` - Insert a new row into a table
+- **PUT** `/api/data/update/:table/:id` - Update a row by primary key
+- **DELETE** `/api/data/delete/:table/:id` - Delete a row by primary key
 
 ## Technology Stack
 
 ### Backend
 - **Node.js** - Backend runtime environment
 - **Express.js** - Web framework for handling API requests
-- **PostgreSQL & pg** - Relational database and Node.js client
-- **@google/genai** - Google Gemini API client for AI integration
-- **Dotenv** - Environment variable management
-- **Cors** - Cross-Origin Resource Sharing middleware
+- **PostgreSQL** - Relational database
+- **@google/genai** - Google Gemini SDK for AI integrations
+- **pg** - PostgreSQL client for Node.js
 
 ### Frontend
 - **React** - JavaScript library for building user interfaces
-- **Vite** - Next-generation frontend tooling
+- **Vite** - Next-generation frontend tooling and bundler
 - **Axios** - Promise-based HTTP client for making API requests
-- **Recharts** - Composable charting library built on React components
-- **Lucide React** - Beautiful and consistent icons
-- **React Syntax Highlighter** - For rendering formatted SQL code blocks
-
----
-🚀 **QueryMind is ready for further expansion!** Feel free to contribute or suggest improvements. 🎉
+- **Recharts** - Composable charting library for React
+- **Lucide React** - Icon library
+- **React Syntax Highlighter** - For rendering formatted SQL snippets
