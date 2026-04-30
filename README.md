@@ -6,6 +6,8 @@ QueryMind is an intelligent tool that allows users to seamlessly convert natural
 ## Project Type
 - Backend: Node.js, Express
 - Frontend: React, Vite
+- Datebase: Postgresql
+- AI-GEMINI
 
 ## Deployed App
 - **Frontend**: https://querymind-nltosql.netlify.app
