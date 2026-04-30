@@ -6,10 +6,12 @@ QueryMind is an intelligent tool that translates natural language questions into
 ## Project Type
 - Backend: Node.js, Express, PostgreSQL
 - Frontend: React, Vite
+- Datebase: Postgresql
+- AI-GEMINI
 
 ## Deployed App
 - **Frontend**: https://querymind-nltosql.netlify.app/ (Deployed on Netlify)
-- **Backend**: (Deployed on Render / Add your link here)
+- **Backend**: https://querymind-gmyy.onrender.com (Deployed on Render)
 
 ## Directory Structure
 ```
@@ -86,7 +88,7 @@ Follow these steps to set up the project locally:
 
 ```bash
 # Clone the repository
-git clone <your-repository-url>
+git clone https://github.com/ravithejagolla/QueryMind.git
 
 # Navigate to the backend directory
 cd QueryMind/backend
