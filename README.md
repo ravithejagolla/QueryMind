@@ -96,12 +96,6 @@ cd QueryMind/backend
 # Install backend dependencies
 npm install
 
-# Set up environment variables
-# Create a .env file in the backend folder and add:
-# PORT=5000
-# DATABASE_URL=<your-postgresql-url>
-# GEMINI_API_KEY=<your-google-gemini-api-key>
-
 # Start the backend server
 npm start
 
