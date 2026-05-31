@@ -86,27 +86,65 @@ User: "Which warehouse has the most inventory?"
 Response: {"status": "error", "response": "I cannot answer this question as the database does not contain information about warehouses. The schema includes customers, products, orders, and order_items tables only.", "explanation": "The requested data does not exist in the current schema."}
 `;
 
-export const generateSQL = async (userQuery) => {
+export const generateSQL = async (userQuery, customApiKey = null) => {
+  const apiKey = customApiKey || process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error('Gemini API key is not configured. Please set GEMINI_API_KEY in the backend or provide a custom key in settings.');
+  }
+
+  const genai = new GoogleGenAI({ apiKey });
   const contents = `${SYSTEM_PROMPT}\n\nUser question: "${userQuery}"`;
 
-  const response = await genai.models.generateContent({
-    model: 'gemini-2.0-flash',
-    contents: contents,
-  });
-
-  const rawText = response.text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-
-  try {
-    const parsed = JSON.parse(rawText);
-    return parsed;
-  } catch (e) {
-    // Try to extract JSON if wrapped in other text
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      return JSON.parse(jsonMatch[0]);
-    }
-    throw new Error('Failed to parse AI response as JSON');
+  const models = [];
+  if (process.env.GEMINI_MODEL) {
+    models.push(process.env.GEMINI_MODEL);
   }
+  
+  // Default fallback sequence of models
+  const defaultModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+  for (const model of defaultModels) {
+    if (!models.includes(model)) {
+      models.push(model);
+    }
+  }
+
+  let lastError = null;
+
+  for (const model of models) {
+    try {
+      console.log(`[Gemini] Attempting SQL generation using model: ${model}`);
+      const response = await genai.models.generateContent({
+        model: model,
+        contents: contents,
+      });
+
+      const rawText = response.text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+      try {
+        const parsed = JSON.parse(rawText);
+        parsed.modelUsed = model;
+        console.log(`[Gemini] Successfully generated SQL with model: ${model}`);
+        return parsed;
+      } catch (e) {
+        // Try to extract JSON if wrapped in other text
+        const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          parsed.modelUsed = model;
+          console.log(`[Gemini] Successfully extracted JSON and generated SQL with model: ${model}`);
+          return parsed;
+        }
+        throw new Error('Failed to parse AI response as JSON');
+      }
+    } catch (error) {
+      console.error(`[Gemini] Error with model ${model}:`, error.message);
+      lastError = error;
+      // Continue to the next model in the fallback list
+    }
+  }
+
+  // If all models in the sequence failed, throw the last error encountered
+  throw lastError || new Error('All Gemini models failed to generate SQL');
 }
 
 

@@ -14,7 +14,8 @@ router.post('/query', async (req, res) => {
     }
 
     // Step 1: Generate SQL using Gemini
-    const aiResult = await generateSQL(question.trim());
+    const customApiKey = req.headers['x-api-key'] || req.headers['x-gemini-key'];
+    const aiResult = await generateSQL(question.trim(), customApiKey);
 
     // If clarification needed or error, return without executing
     if (aiResult.status !== 'success') {
@@ -26,6 +27,7 @@ router.post('/query', async (req, res) => {
         data: null,
         columns: null,
         rowCount: 0,
+        modelUsed: aiResult.modelUsed,
       });
     }
 
@@ -59,10 +61,33 @@ router.post('/query', async (req, res) => {
       data: data,
       columns: columns,
       rowCount: data.length,
+      modelUsed: aiResult.modelUsed,
     });
 
   } catch (error) {
     console.error('Query error:', error.message);
+
+    const errorMessage = error.message || '';
+    const isRateLimit = errorMessage.includes('429') || 
+                        errorMessage.includes('RESOURCE_EXHAUSTED') || 
+                        errorMessage.includes('Quota exceeded') ||
+                        errorMessage.includes('rate-limits');
+
+    if (isRateLimit) {
+      const customApiKey = req.headers['x-api-key'] || req.headers['x-gemini-key'];
+      return res.status(200).json({
+        status: 'quota_exceeded',
+        message: 'Gemini API quota exceeded or 429 Too Many Requests.',
+        explanation: customApiKey 
+          ? 'Your custom Gemini API Key has exceeded its rate limits or free tier quota. Please check your usage on Google AI Studio or verify your billing setup.'
+          : 'The default QueryMind Gemini API Key has exceeded its daily or per-minute rate limits. You can supply your own free Gemini API Key in the settings to continue.',
+        sql: null,
+        data: null,
+        columns: null,
+        rowCount: 0,
+        usingCustomKey: !!customApiKey,
+      });
+    }
 
     // Handle database errors
     if (error.code) {

@@ -6,6 +6,7 @@ import SQLResult from './components/SQLResult';
 import ResultsTable from './components/ResultsTable';
 import ChartPanel from './components/ChartPanel';
 import DataManager from './components/DataManager';
+import ApiKeyModal from './components/ApiKeyModal';
 import { executeQuery, getSchema, getSuggestions } from './services/api';
 import './index.css';
 
@@ -20,6 +21,7 @@ export default function App() {
   const [dbStatus, setDbStatus] = useState('checking');
   const [queryHistory, setQueryHistory] = useState([]);
   const [theme, setTheme] = useState('dark');
+  const [apiKeyModalOpen, setApiKeyModalOpen] = useState(false);
   const queryInputRef = useRef(null);
 
   // Apply theme to document root
@@ -108,6 +110,7 @@ export default function App() {
         history={queryHistory}
         onRerun={handleQuery}
         onClearHistory={() => setQueryHistory([])}
+        onOpenApiKeyModal={() => setApiKeyModalOpen(true)}
       >
         <DataManager onDataChanged={loadSchema} />
       </Header>
@@ -145,7 +148,9 @@ export default function App() {
           )}
 
           {/* SQL result card */}
-          {result && !loading && <SQLResult result={result} />}
+          {result && !loading && (
+            <SQLResult result={result} onOpenApiKeyModal={() => setApiKeyModalOpen(true)} />
+          )}
 
           {/* Data table */}
           {!loading && (
@@ -156,6 +161,9 @@ export default function App() {
 
       {/* Draggable chart panel — fixed on the right edge */}
       <ChartPanel result={result} />
+
+      {/* API Key Modal at top level */}
+      <ApiKeyModal isOpen={apiKeyModalOpen} onClose={() => setApiKeyModalOpen(false)} />
     </div>
   );
 }

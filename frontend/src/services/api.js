@@ -7,6 +7,17 @@ const api = axios.create({
   timeout: 30000,
 });
 
+// Interceptor to automatically attach custom Gemini API Key from localStorage
+api.interceptors.request.use((config) => {
+  const customKey = localStorage.getItem('querymind_gemini_api_key');
+  if (customKey) {
+    config.headers['x-api-key'] = customKey;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
 export const executeQuery = async (question) => {
   const { data } = await api.post('/query', { question });
   return data;
